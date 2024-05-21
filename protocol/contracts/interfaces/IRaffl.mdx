@@ -1,0 +1,335 @@
+# IRaffl
+[Git Source](https://github.com/Raffleth/protocol/blob/d0e7a98ac74e241068705b47dbc09c29744e1867/src/interfaces/IRaffl.sol)
+
+*Interface that describes the Prize struct, the GameStatus and initialize function so the `RafflFactory` knows
+how to initialize the `Raffl`.*
+
+
+## Functions
+### initialize
+
+Initializes the contract by setting up the raffle variables and the
+`prices` information.
+
+
+```solidity
+function initialize(
+    address entryToken,
+    uint256 entryPrice,
+    uint256 minEntries,
+    uint256 deadline,
+    address creator,
+    Prize[] calldata prizes,
+    TokenGate[] calldata tokenGates,
+    ExtraRecipient calldata extraRecipient
+)
+    external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`entryToken`|`address`|       The address of the ERC-20 token as entry. If address zero, entry is the network token|
+|`entryPrice`|`uint256`|       The value of each entry for the raffle.|
+|`minEntries`|`uint256`|       The minimum number of entries to consider make the draw.|
+|`deadline`|`uint256`|         The block timestamp until the raffle will receive entries and that will perform the draw if criteria is met.|
+|`creator`|`address`|          The address of the raffle creator|
+|`prizes`|`Prize[]`|           The prizes that will be held by this contract.|
+|`tokenGates`|`TokenGate[]`|       The token gating that will be imposed to users.|
+|`extraRecipient`|`ExtraRecipient`|   The extra recipient that will share the rewards (optional).|
+
+
+### criteriaMet
+
+Checks if the raffle has met the minimum entries
+
+
+```solidity
+function criteriaMet() external view returns (bool);
+```
+
+### deadlineExpired
+
+Checks if the deadline has passed
+
+
+```solidity
+function deadlineExpired() external view returns (bool);
+```
+
+### upkeepPerformed
+
+Checks if raffle already perfomed the upkeep
+
+
+```solidity
+function upkeepPerformed() external view returns (bool);
+```
+
+### setSuccessCriteria
+
+Sets the criteria as settled, sets the `GameStatus` as `DrawStarted` and emits event
+`DeadlineSuccessCriteria`
+
+*Access control: `factory` is the only allowed to called this method*
+
+
+```solidity
+function setSuccessCriteria(uint256 requestId) external;
+```
+
+### setFailedCriteria
+
+Sets the criteria as settled, sets the `GameStatus` as `FailedDraw` and emits event
+`DeadlineFailedCriteria`
+
+*Access control: `factory` is the only allowed to called this method*
+
+
+```solidity
+function setFailedCriteria() external;
+```
+
+### buyEntries
+
+Purchase entries for the raffle.
+
+*Handles the acquisition of entries for three scenarios:
+i) Entry is paid with network tokens,
+ii) Entry is paid with ERC-20 tokens,
+iii) Entry is free (allows up to 1 entry per user)*
+
+
+```solidity
+function buyEntries(uint256 quantity) external payable;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`quantity`|`uint256`|The quantity of entries to purchase. Requirements: - If entry is paid with network tokens, the required amount of network tokens. - If entry is paid with ERC-20, the contract must be approved to spend ERC-20 tokens. - If entry is free, no payment is required. Emits `EntriesBought` event|
+
+
+### refundEntries
+
+Refund entries for a specific user.
+
+*Invokable when the draw was not made because the min entries were not enought*
+
+*This method is not available if the `entryPrice` was zero*
+
+
+```solidity
+function refundEntries(address user) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`|The address of the user whose entries will be refunded.|
+
+
+### refundPrizes
+
+Refund prizes to the creator.
+
+*Invokable when the draw was not made because the min entries were not enought*
+
+
+```solidity
+function refundPrizes() external payable;
+```
+
+### disperseRewards
+
+Transfers the `prizes` to the provably fair and verifiable entrant, sets the `GameStatus` as
+`SuccessDraw` and emits event `DrawSuccess`
+
+*Access control: `factory` is the only allowed to called this method through the Chainlink VRF Coordinator*
+
+
+```solidity
+function disperseRewards(uint256 requestId, uint256 randomNumber) external;
+```
+
+## Events
+### RaffleInitialized
+Emit when a new raffle is initialized.
+
+
+```solidity
+event RaffleInitialized();
+```
+
+### EntriesBought
+Emit when a user buys entries.
+
+
+```solidity
+event EntriesBought(address indexed user, uint256 entriesBought, uint256 value);
+```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`|The address of the user who purchased the entries.|
+|`entriesBought`|`uint256`|The number of entries bought.|
+|`value`|`uint256`|The value of the entries bought.|
+
+### EntriesRefunded
+Emit when a user gets refunded for their entries.
+
+
+```solidity
+event EntriesRefunded(address indexed user, uint256 entriesRefunded, uint256 value);
+```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`|The address of the user who got the refund.|
+|`entriesRefunded`|`uint256`|The number of entries refunded.|
+|`value`|`uint256`|The value of the entries refunded.|
+
+### PrizesRefunded
+Emit when prizes are refunded.
+
+
+```solidity
+event PrizesRefunded();
+```
+
+### DrawSuccess
+Emit when a draw is successful.
+
+
+```solidity
+event DrawSuccess(uint256 indexed requestId, uint256 winnerEntry, address user, uint256 entries);
+```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`requestId`|`uint256`|The indexed ID of the draw request.|
+|`winnerEntry`|`uint256`|The entry that won the draw.|
+|`user`|`address`|The address of the winner.|
+|`entries`|`uint256`|The entries the winner had.|
+
+### DeadlineSuccessCriteria
+Emit when the criteria for deadline success is met.
+
+
+```solidity
+event DeadlineSuccessCriteria(uint256 indexed requestId, uint256 entries, uint256 minEntries);
+```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`requestId`|`uint256`|The indexed ID of the deadline request.|
+|`entries`|`uint256`|The number of entries at the time of the deadline.|
+|`minEntries`|`uint256`|The minimum number of entries required for success.|
+
+### DeadlineFailedCriteria
+Emit when the criteria for deadline failure is met.
+
+
+```solidity
+event DeadlineFailedCriteria(uint256 entries, uint256 minEntries);
+```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`entries`|`uint256`|The number of entries at the time of the deadline.|
+|`minEntries`|`uint256`|The minimum number of entries required for success.|
+
+### TokenGatingChanges
+Emit when changes are made to token-gating parameters.
+
+
+```solidity
+event TokenGatingChanges();
+```
+
+## Structs
+### Prize
+*`asset` represents the address of the asset considered as a prize*
+
+*`assetType` defines the type of asset*
+
+*`value` represents the value of the prize. If asset is an ERC20, it's the amount. If asset is an ERC721,
+it's the tokenId.*
+
+
+```solidity
+struct Prize {
+    address asset;
+    AssetType assetType;
+    uint256 value;
+}
+```
+
+### TokenGate
+*`token` represents the address of the token gating asset*
+
+*`amount` represents the minimum value of the token gating*
+
+
+```solidity
+struct TokenGate {
+    address token;
+    uint256 amount;
+}
+```
+
+### ExtraRecipient
+*`recipient` represents the address of the extra recipient of the pooled funds*
+
+*`feePercentage` is the percentage of the pooled funds (after fees) that will be shared to the extra
+recipient*
+
+
+```solidity
+struct ExtraRecipient {
+    address recipient;
+    uint64 sharePercentage;
+}
+```
+
+## Enums
+### AssetType
+*Asset type describe the kind of token behind the prize tok describes how the periods between release
+tokens.*
+
+
+```solidity
+enum AssetType {
+    ERC20,
+    ERC721
+}
+```
+
+### GameStatus
+*GameStatus defines the possible states of the game
+(0) Initialized: Raffle is initialized and ready to receive entries until the deadline
+(1) FailedDraw: Raffle deadline was hit by the Chailink Upkeep but minimum entries were not met
+(2) DrawStarted: Raffle deadline was hit by the Chainlink Upkeep and it's waiting for the Chainlink VRF
+with the lucky winner
+(3) SuccessDraw: Raffle received the provably fair and verifiable random lucky winner and distributed rewards.*
+
+
+```solidity
+enum GameStatus {
+    Initialized,
+    FailedDraw,
+    DrawStarted,
+    SuccessDraw
+}
+```
+

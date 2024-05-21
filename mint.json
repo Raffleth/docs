@@ -1,0 +1,117 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Raffl Docs",
+  "logo": {
+    "dark": "/logo/logo.svg",
+    "light": "/logo/logo.svg"
+  },
+  "modeToggle": {
+    "default": "dark"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#6d28d9",
+    "light": "#ae7aff",
+    "dark": "#6d28d9",
+    "anchors": {
+      "from": "#6d28d9",
+      "to": "#6d28d9"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:ja@raffl.xyz"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://dashboard.mintlify.com"
+  },
+  "tabs": [
+    {
+      "name": "Protocol",
+      "url": "protocol"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "Dashboard",
+      "icon": "gauge",
+      "url": "https://raffl.xyz"
+    },
+    {
+      "name": "Github",
+      "icon": "github",
+      "url": "https://github.com/raffleth"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "",
+      "pages": ["introduction", "features", "why-use-raffl"]
+    },
+    {
+      "group": "Smart Contracts",
+      "pages": [
+        "protocol/introduction",
+        "protocol/contract-addresses",
+        "protocol/subgraph",
+        "protocol/integrate-raffl-into-your-protocol"
+      ]
+    },
+    {
+      "group": "Technical",
+      "pages": [
+        "protocol/contracts/RafflFactory",
+        "protocol/contracts/Raffl",
+        {
+          "group": "Abstracts",
+          "pages": ["protocol/contracts/abstracts/EntriesManager", "protocol/contracts/abstracts/FactoryFeeManager"]
+        },
+        {
+          "group": "Interfaces",
+          "pages": [
+            "protocol/contracts/interfaces/IFactoryFeeManager",
+            "protocol/contracts/interfaces/IFeeManager",
+            "protocol/contracts/interfaces/IRaffl",
+            "protocol/contracts/interfaces/IERC20Minimal"
+          ]
+        },
+        {
+          "group": "Libraries",
+          "pages": [
+            "protocol/contracts/libraries/RafflErrors",
+            "protocol/contracts/libraries/RafflFactoryErrors",
+            "protocol/contracts/libraries/TokenLib"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "Tutorials",
+      "pages": ["tutorials/how-to-create", "tutorials/how-to-participate", "tutorials/how-to-restrict-to-holders"]
+    },
+    {
+      "group": "FAQs",
+      "pages": [
+        "faq/what-happens-if-draw-is-not-made",
+        "faq/how-to-claim-rewards",
+        "faq/how-to-know-who-is-the-winner",
+        "faq/is-there-a-way-to-know-total-entries",
+        "faq/is-there-a-way-to-manually-cancel-a-raffle",
+        "faq/is-there-a-way-to-request-a-refund",
+        "faq/what-happens-to-pooled-entries",
+        "faq/how-is-raffl-different-from-a-traditional-raffle"
+      ]
+    },
+    {
+      "group": "Contact Us",
+      "pages": ["business-partnerships", "contact-us"]
+    }
+  ],
+  "footerSocials": {
+    "x": "https://x.com/rafflxyz",
+    "github": "https://github.com/raffleth"
+  }
+}

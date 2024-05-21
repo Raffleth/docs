@@ -1,0 +1,332 @@
+# FactoryFeeManager
+[Git Source](https://github.com/Raffleth/protocol/blob/d0e7a98ac74e241068705b47dbc09c29744e1867/src/abstracts/FactoryFeeManager.sol)
+
+**Inherits:**
+[IFactoryFeeManager](/src/interfaces/IFactoryFeeManager.sol/interface.IFactoryFeeManager.md)
+
+**Author:**
+JA (@ubinatus)
+
+## State Variables
+### MAX_POOL_FEE
+CONSTANTS
+
+*Pool fee is calculated using 18 decimals where 0.05 ether is 5%.*
+
+
+```solidity
+uint64 internal constant MAX_POOL_FEE = 0.1 ether;
+```
+
+
+### _feeData
+STATE
+
+*Stores fee related information for collection purposes.*
+
+
+```solidity
+FeeData internal _feeData;
+```
+
+
+### _upcomingCreationFee
+*Stores the info necessary for an upcoming change of the global creation fee.*
+
+
+```solidity
+UpcomingFeeData internal _upcomingCreationFee;
+```
+
+
+### _upcomingPoolFee
+*Stores the info necessary for an upcoming change of the global pool fee.*
+
+
+```solidity
+UpcomingFeeData internal _upcomingPoolFee;
+```
+
+
+### _creationFeeByUser
+*Maps a user address to a custom creation fee struct.*
+
+
+```solidity
+mapping(address => CustomFeeData) internal _creationFeeByUser;
+```
+
+
+### _poolFeeByUser
+*Maps a user address to a custom pool fee struct.*
+
+
+```solidity
+mapping(address => CustomFeeData) internal _poolFeeByUser;
+```
+
+
+## Functions
+### onlyFeeCollector
+
+Reverts if called by anyone other than the factory fee collector.
+
+
+```solidity
+modifier onlyFeeCollector();
+```
+
+### minPoolFee
+
+FUNCTIONS
+
+*Exposes the minimum pool fee.*
+
+
+```solidity
+function minPoolFee() external pure override returns (uint64);
+```
+
+### maxPoolFee
+
+*Exposes the maximum pool fee.*
+
+
+```solidity
+function maxPoolFee() external pure override returns (uint64);
+```
+
+### feeCollector
+
+Exposes the `FeeData.feeCollector` to users.
+
+
+```solidity
+function feeCollector() external view override returns (address);
+```
+
+### globalCreationFee
+
+Retrieves the current global creation fee to users.
+
+
+```solidity
+function globalCreationFee() external view override returns (uint64);
+```
+
+### globalPoolFee
+
+Retrieves the current global pool fee percentage to users.
+
+
+```solidity
+function globalPoolFee() external view override returns (uint64);
+```
+
+### creationFeeData
+
+Exposes the creation fee for new `Raffl`s deployments.
+
+*Enabled custom fees overrides the global creation fee.*
+
+
+```solidity
+function creationFeeData(address user) external view returns (address feeCollectorAddress, uint64 creationFeeValue);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`||
+
+
+### poolFeeData
+
+Returns the current pool fee for a specific Raffle, considering any pending updates.
+
+
+```solidity
+function poolFeeData(address user) external view returns (address feeCollectorAddress, uint64 poolFeePercentage);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`|Address of the user.|
+
+
+### scheduleGlobalCreationFee
+
+Sets a new global creation fee value, to take effect after 1 hour.
+
+*`msg.sender` has to be the fee collector of the factory.*
+
+
+```solidity
+function scheduleGlobalCreationFee(uint64 newFeeValue) external override onlyFeeCollector;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`newFeeValue`|`uint64`|Value for `creationFee` that will be charged on `Raffl`'s deployments.|
+
+
+### scheduleGlobalPoolFee
+
+Sets a new global pool fee percentage, to take effect after 1 hour.
+
+*Percentages and fees are calculated using 18 decimals where 1 ether is 100%.
+Requirements:
+- `newFeePercentage` must be within minPoolFee and maxPoolFee.
+- `msg.sender` has to be the fee collector of the factory.*
+
+
+```solidity
+function scheduleGlobalPoolFee(uint64 newFeePercentage) external override onlyFeeCollector;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`newFeePercentage`|`uint64`|Value for `poolFeePercentage` that will be charged on `Raffl`'s pools.|
+
+
+### scheduleCustomCreationFee
+
+Sets a new custom creation fee value for a specific User, to be enabled and take effect
+after 1 hour from the time of this transaction.
+
+*Allows the contract owner to modify the creation fee associated with a specific User.
+The new fee becomes effective after a delay of 1 hour, aiming to provide a buffer for users to be aware of the
+upcoming fee change.
+This function updates the fee and schedules its activation, ensuring transparency and predictability in fee
+adjustments.
+The fee is specified in wei, allowing for granular control over the fee structure. Emits a
+`CustomCreationFeeChange` event upon successful fee update.
+Requirements:
+- `msg.sender` has to be the fee collector of the factory.*
+
+
+```solidity
+function scheduleCustomCreationFee(address user, uint64 newFeeValue) external override onlyFeeCollector;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`|Address of the `user`.|
+|`newFeeValue`|`uint64`|The new creation fee amount to be set, in wei, to replace the current fee after the specified delay.|
+
+
+### scheduleCustomPoolFee
+
+Sets a new custom pool fee percentage for a specific User, to be enabled and take effect
+after 1 hour from the time of this transaction.
+
+*This function allows the contract owner to adjust the pool fee for a User.
+The fee adjustment is delayed by 1 hour to provide transparency and predictability. Fees are calculated with
+precision to 18 decimal places, where 1 ether equals 100% fee.
+The function enforces fee limits; `newFeePercentage` must be within the predefined 0-`MAX_POOL_FEE` bounds.
+If the custom fee was previously disabled or set to a different value, this operation schedules the new fee to
+take effect after the delay, enabling it if necessary.
+Emits a `CustomPoolFeeChange` event upon successful execution.
+Requirements:
+- `msg.sender` has to be the fee collector of the factory.
+- `newFeePercentage` must be within the range limited by `MAX_POOL_FEE`.*
+
+
+```solidity
+function scheduleCustomPoolFee(address user, uint64 newFeePercentage) external override onlyFeeCollector;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`|Address of the `user`.|
+|`newFeePercentage`|`uint64`|The new pool fee percentage to be applied, expressed in ether terms (18 decimal places) where 1 ether represents 100%.|
+
+
+### toggleCustomCreationFee
+
+Enables or disables the custom creation fee for a given Raffle, with the change taking effect
+after 1 hour.
+
+*`msg.sender` has to be the fee collector of the factory.*
+
+
+```solidity
+function toggleCustomCreationFee(address user, bool enable) external override onlyFeeCollector;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`|Address of the `user`.|
+|`enable`|`bool`|True to enable the fee, false to disable it.|
+
+
+### toggleCustomPoolFee
+
+Enables or disables the custom pool fee for a given Raffle, to take effect after 1 hour.
+
+*`msg.sender` has to be the fee collector of the factory.*
+
+
+```solidity
+function toggleCustomPoolFee(address user, bool enable) external override onlyFeeCollector;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`|Address of the `user`.|
+|`enable`|`bool`|True to enable the fee, false to disable it.|
+
+
+### _getCurrentFee
+
+Calculates the current fee based on global, custom, and upcoming fee data.
+
+*This function considers the current timestamp and determines the appropriate fee
+based on whether a custom or upcoming fee should be applied.*
+
+
+```solidity
+function _getCurrentFee(
+    uint64 globalValue,
+    UpcomingFeeData memory upcomingGlobalFee,
+    CustomFeeData memory customFee
+)
+    internal
+    view
+    returns (uint64 currentValue);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`globalValue`|`uint64`|The default global fee value used when no custom fees are applicable.|
+|`upcomingGlobalFee`|`UpcomingFeeData`|A struct containing data about an upcoming fee change, including the timestamp for the change and the new value to be applied.|
+|`customFee`|`CustomFeeData`|A struct containing data about the custom fee, including its enablement status, timestamps for changes, and its values (current and new).|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`currentValue`|`uint64`|The calculated current fee value, taking into account the global value, custom fee, and upcoming fee data based on the current timestamp.|
+
+
+### _processCreationFee
+
+Processes the creation fee for a transaction.
+
+*This function retrieves the creation fee data from the manager contract and, if the creation fee is greater
+than zero, sends the `msg.value` to the fee collector address. Reverts if the transferred value is less than the
+required creation fee or if the transfer fails.*
+
+
+```solidity
+function _processCreationFee(address user) internal;
+```
+

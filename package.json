@@ -1,0 +1,14 @@
+{
+  "name": "docs",
+  "version": "0.0.1",
+  "description": "Raffl documentation",
+  "author": {
+    "name": "JA <@ubinatus>",
+    "email": "ja@raffl.xyz",
+    "url": "https://raffl.xyz"
+  },
+  "scripts": {
+    "dev": "mintlify dev --port 3005"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,149 @@
+# EntriesManager
+[Git Source](https://github.com/Raffleth/protocol/blob/d0e7a98ac74e241068705b47dbc09c29744e1867/src/abstracts/EntriesManager.sol)
+
+Manager contract that handles the acquisition of `Raffl` entries.
+
+*This is an extract of @cygaar_dev and @vectorized.eth [ERC721A](https://erc721a.org) contract in order to manage
+efficient minting of entries.
+Assumptions:
+- An owner cannot mint more than 2**64 - 1 (type(uint64).max).
+- The maximum entry ID cannot exceed 2**256 - 1 (type(uint256).max).*
+
+
+## State Variables
+### _BITMASK_ADDRESS_DATA_ENTRY
+*Mask of an entry in packed address data.*
+
+
+```solidity
+uint256 private constant _BITMASK_ADDRESS_DATA_ENTRY = (1 << 64) - 1;
+```
+
+
+### _BITPOS_NUMBER_MINTED
+*The bit position of `numberMinted` in packed address data.*
+
+
+```solidity
+uint256 private constant _BITPOS_NUMBER_MINTED = 64;
+```
+
+
+### _BITMASK_ADDRESS
+*The mask of the lower 160 bits for addresses.*
+
+
+```solidity
+uint256 private constant _BITMASK_ADDRESS = (1 << 160) - 1;
+```
+
+
+### _currentIndex
+*The next entry ID to be minted.*
+
+
+```solidity
+uint256 private _currentIndex;
+```
+
+
+### _packedOwnerships
+
+```solidity
+mapping(uint256 => uint256) private _packedOwnerships;
+```
+
+
+### _packedAddressData
+
+```solidity
+mapping(address => uint256) private _packedAddressData;
+```
+
+
+## Functions
+### totalEntries
+
+*Returns the total amount of entries minted in the contract.*
+
+
+```solidity
+function totalEntries() public view virtual returns (uint256 result);
+```
+
+### balanceOf
+
+*Returns the number of entries in `owner`'s account.*
+
+
+```solidity
+function balanceOf(address owner) public view virtual returns (uint256);
+```
+
+### ownerOf
+
+*Returns the owner of the `entryId`.
+Requirements:
+- `entryId` must exist.*
+
+
+```solidity
+function ownerOf(uint256 entryId) public view virtual returns (address);
+```
+
+### _packedOwnershipOf
+
+*Returns the packed ownership data of `entryId`.*
+
+
+```solidity
+function _packedOwnershipOf(uint256 entryId) private view returns (uint256 packed);
+```
+
+### _packOwnershipData
+
+*Packs ownership data into a single uint256.*
+
+
+```solidity
+function _packOwnershipData(address owner) private pure returns (uint256 result);
+```
+
+### _mint
+
+*Mints `quantity` entries and transfers them to `to`.
+Requirements:
+- `to` cannot be the zero address.
+- `quantity` must be greater than 0.*
+
+
+```solidity
+function _mint(address to, uint256 quantity) internal virtual;
+```
+
+### _revert
+
+*For more efficient reverts.*
+
+
+```solidity
+function _revert(bytes4 errorSelector) internal pure;
+```
+
+## Errors
+### BalanceQueryForZeroAddress
+Cannot query the balance for the zero address.
+
+
+```solidity
+error BalanceQueryForZeroAddress();
+```
+
+### OwnerQueryForNonexistentEntry
+The entry does not exist.
+
+
+```solidity
+error OwnerQueryForNonexistentEntry();
+```
+

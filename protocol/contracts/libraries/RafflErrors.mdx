@@ -1,0 +1,109 @@
+# Errors
+[Git Source](https://github.com/Raffleth/protocol/blob/d0e7a98ac74e241068705b47dbc09c29744e1867/src/libraries/RafflErrors.sol)
+
+
+## Errors
+### OnlyFactoryAllowed
+Thrown if anyone other than the factory tries to interact.
+
+
+```solidity
+error OnlyFactoryAllowed();
+```
+
+### OnlyCreatorAllowed
+Thrown if anyone other than the creator tries to interact.
+
+
+```solidity
+error OnlyCreatorAllowed();
+```
+
+### EntryQuantityRequired
+Thrown if no entry quantity is provided.
+
+
+```solidity
+error EntryQuantityRequired();
+```
+
+### EntriesPurchaseClosed
+Thrown if the entries purchase period is closed.
+
+
+```solidity
+error EntriesPurchaseClosed();
+```
+
+### EntriesPurchaseInvalidValue
+Thrown if invalid value provided for entries purchase.
+
+
+```solidity
+error EntriesPurchaseInvalidValue();
+```
+
+### RefundsOnlyAllowedOnFailedDraw
+Thrown if refunds are initiated before draw failure.
+
+
+```solidity
+error RefundsOnlyAllowedOnFailedDraw();
+```
+
+### UserWithoutEntries
+Thrown if a user without entries tries to claim.
+
+
+```solidity
+error UserWithoutEntries();
+```
+
+### UserAlreadyRefunded
+Thrown if a user was already refunded entries.
+
+
+```solidity
+error UserAlreadyRefunded();
+```
+
+### PrizesAlreadyRefunded
+Thrown if prizes are already refunded.
+
+
+```solidity
+error PrizesAlreadyRefunded();
+```
+
+### MaxUserEntriesReached
+Thrown if the maximum entries limit per user has been reached.
+
+
+```solidity
+error MaxUserEntriesReached();
+```
+
+### MaxTotalEntriesReached
+Thrown if the total maximum entries limit has been reached.
+
+
+```solidity
+error MaxTotalEntriesReached();
+```
+
+### WithoutRefunds
+Thrown if the refund operation is initiated without any refunds.
+
+
+```solidity
+error WithoutRefunds();
+```
+
+### TokenGateRestriction
+Thrown if token gate restriction is violated.
+
+
+```solidity
+error TokenGateRestriction();
+```
+

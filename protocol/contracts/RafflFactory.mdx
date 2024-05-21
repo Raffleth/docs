@@ -1,0 +1,340 @@
+# RafflFactory
+[Git Source](https://github.com/Raffleth/protocol/blob/d0e7a98ac74e241068705b47dbc09c29744e1867/src/RafflFactory.sol)
+
+**Inherits:**
+AutomationCompatibleInterface, VRFConsumerBaseV2Plus, [FactoryFeeManager](/src/abstracts/FactoryFeeManager.sol/abstract.FactoryFeeManager.md)
+
+**Author:**
+JA (@ubinatus)
+
+Raffl is a decentralized platform built on the Ethereum blockchain, allowing users to create and participate
+in raffles/lotteries with complete transparency, security, and fairness.
+
+*The RafflFactory contract can be used to create raffle contracts, leveraging Chainlink VRF and Chainlink
+Automations.*
+
+
+## State Variables
+### keyHash
+*Max gas to bump to*
+
+
+```solidity
+bytes32 keyHash;
+```
+
+
+### callbackGasLimit
+*Callback gas limit for the Chainlink VRF*
+
+
+```solidity
+uint32 callbackGasLimit = 500_000;
+```
+
+
+### requestConfirmations
+*Number of requests confirmations for the Chainlink VRF*
+
+
+```solidity
+uint16 requestConfirmations = 3;
+```
+
+
+### subscriptionId
+*Chainlink subscription ID*
+
+
+```solidity
+uint256 public subscriptionId;
+```
+
+
+### implementation
+The address that will be used as a delegate call target for `Raffl`s.
+
+
+```solidity
+address public immutable implementation;
+```
+
+
+### _salt
+*It will be used as the salt for create2*
+
+
+```solidity
+bytes32 internal _salt;
+```
+
+
+### _raffles
+*Maps the created `Raffl`s addresses*
+
+
+```solidity
+mapping(address => bool) internal _raffles;
+```
+
+
+### _requestIds
+*Maps the VRF `requestId` to the `Raffl`s address*
+
+
+```solidity
+mapping(uint256 => address) internal _requestIds;
+```
+
+
+### _activeRaffles
+*Stores the active raffles, which upkeep is pending to be performed*
+
+
+```solidity
+ActiveRaffle[] internal _activeRaffles;
+```
+
+
+## Functions
+### constructor
+
+*Creates a `Raffl` factory contract.
+Requirements:
+- `implementationAddress` has to be a contract.
+- `feeCollectorAddress` can't be address 0x0.
+- `poolFeePercentage` must be within 0 and maxFee range.
+- `vrfCoordinator` can't be address 0x0.*
+
+
+```solidity
+constructor(
+    address implementationAddress,
+    address feeCollectorAddress,
+    uint64 creationFeeValue,
+    uint64 poolFeePercentage,
+    address vrfCoordinator,
+    bytes32 _keyHash,
+    uint256 _subscriptionId
+)
+    VRFConsumerBaseV2Plus(vrfCoordinator);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`implementationAddress`|`address`|Address of `Raffl` contract implementation.|
+|`feeCollectorAddress`|`address`|  Address of `feeCollector`.|
+|`creationFeeValue`|`uint64`|   Value for `creationFee` that will be charged on new `Raffl`s deployed.|
+|`poolFeePercentage`|`uint64`|   Value for `poolFeePercentage` that will be charged from the `Raffl`s pool on success draw.|
+|`vrfCoordinator`|`address`|VRF Coordinator address|
+|`_keyHash`|`bytes32`|The gas lane to use, which specifies the maximum gas price to bump to|
+|`_subscriptionId`|`uint256`|The subscription ID that this contract uses for funding VRF requests|
+
+
+### nextSalt
+
+Increments the salt one step.
+
+
+```solidity
+function nextSalt() public;
+```
+
+### createRaffle
+
+Creates new `Raffl` contracts.
+Requirements:
+- `underlyingTokenAddress` cannot be the zero address.
+- `timestamps` must be given in ascending order.
+- `percentages` must be given in ascending order and the last one must always be 1 eth, where 1 eth equals to
+100%.
+
+
+```solidity
+function createRaffle(
+    address entryToken,
+    uint256 entryPrice,
+    uint256 minEntries,
+    uint256 deadline,
+    IRaffl.Prize[] calldata prizes,
+    IRaffl.TokenGate[] calldata tokenGates,
+    IRaffl.ExtraRecipient calldata extraRecipient
+)
+    external
+    payable
+    returns (address raffle);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`entryToken`|`address`|       The address of the ERC-20 token as entry. If address zero, entry is the network token|
+|`entryPrice`|`uint256`|       The value of each entry for the raffle.|
+|`minEntries`|`uint256`|       The minimum number of entries to consider make the draw.|
+|`deadline`|`uint256`|         The block timestamp until the raffle will receive entries and that will perform the draw if criteria is met.|
+|`prizes`|`IRaffl.Prize[]`|           The prizes that will be held by this contract.|
+|`tokenGates`|`IRaffl.TokenGate[]`|       The token gating that will be imposed to users.|
+|`extraRecipient`|`IRaffl.ExtraRecipient`|   The extra recipient that will share the rewards (optional).|
+
+
+### activeRaffles
+
+Exposes the `ActiveRaffle`s
+
+
+```solidity
+function activeRaffles() public view returns (ActiveRaffle[] memory);
+```
+
+### handleSubscription
+
+Sets the Chainlink VRF subscription settings
+
+
+```solidity
+function handleSubscription(
+    uint64 _subscriptionId,
+    bytes32 _keyHash,
+    uint32 _callbackGasLimit,
+    uint16 _requestConfirmations
+)
+    external
+    onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_subscriptionId`|`uint64`|The subscription ID that this contract uses for funding VRF requests|
+|`_keyHash`|`bytes32`|The gas lane to use, which specifies the maximum gas price to bump to|
+|`_callbackGasLimit`|`uint32`|Callback gas limit for the Chainlink VRF|
+|`_requestConfirmations`|`uint16`|Number of requests confirmations for the Chainlink VRF|
+
+
+### checkUpkeep
+
+Method called by the Chainlink Automation Nodes to check if `performUpkeep` must be done.
+
+*Performs the computation to the array of `_activeRaffles`. This opens the possibility of having several
+checkUpkeeps done at the same time.*
+
+
+```solidity
+function checkUpkeep(bytes calldata checkData)
+    external
+    view
+    override
+    returns (bool upkeepNeeded, bytes memory performData);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`checkData`|`bytes`|Encoded binary data which contains the lower bound and upper bound of the `_activeRaffles` array on which to perform the computation|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`upkeepNeeded`|`bool`|Whether the upkeep must be performed or not|
+|`performData`|`bytes`|Encoded binary data which contains the raffle address and index of the `_activeRaffles`|
+
+
+### performUpkeep
+
+Permisionless write method usually called by the Chainlink Automation Nodes.
+
+*Either starts the draw for a raffle or cancels the raffle if criteria is not met.*
+
+
+```solidity
+function performUpkeep(bytes calldata performData) external override;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`performData`|`bytes`|Encoded binary data which contains the raffle address and index of the `_activeRaffles`|
+
+
+### fulfillRandomWords
+
+Method called by the Chainlink VRF Coordinator
+
+
+```solidity
+function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`requestId`|`uint256`|Id of the VRF request|
+|`randomWords`|`uint256[]`|Provably fair and verifiable array of random words|
+
+
+### _burnActiveRaffle
+
+Helper function to remove a raffle from the `_activeRaffles` array
+
+*Move the last element to the deleted stop and removes the last element*
+
+
+```solidity
+function _burnActiveRaffle(uint256 i) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`i`|`uint256`|Element index to remove|
+
+
+### setFeeCollector
+
+FUNCTIONS
+
+*Set address of fee collector.
+Requirements:
+- `msg.sender` has to be the owner of the factory.
+- `newFeeCollector` can't be address 0x0.*
+
+
+```solidity
+function setFeeCollector(address newFeeCollector) external override onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`newFeeCollector`|`address`|Address of `feeCollector`.|
+
+
+## Events
+### RaffleCreated
+
+```solidity
+event RaffleCreated(address raffle);
+```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`raffle`|`address`|Address of the created raffle|
+
+## Structs
+### ActiveRaffle
+*`raffle` the address of the raffle*
+
+*`deadline` is the timestamp that marks the start time to perform the upkeep effect.*
+
+
+```solidity
+struct ActiveRaffle {
+    address raffle;
+    uint256 deadline;
+}
+```
+

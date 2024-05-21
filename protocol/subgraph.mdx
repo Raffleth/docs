@@ -1,0 +1,178 @@
+---
+title: Subgraph
+---
+
+### Built With
+
+- [TheGraph](https://thegraph.com/)
+- And with ❤️
+
+### TheGraph Subgraph URL:
+
+#### Sepolia (ChainID: 11155111)
+
+```
+https://thegraph.com/explorer/subgraphs/D9Gqgx33iq8L6W3JVTxYreaU7w8pRGFpUs44Cui9sUdF?view=Overview&chain=arbitrum-one
+```
+
+#### Arbitrum (ChainID: 42161)
+
+```
+https://thegraph.com/explorer/subgraphs/7FsGux71c4UrU8hAj9LdeC4cghL5Ye3GxXbt7LHCJs1N?v=0&view=Overview&chain=arbitrum-one
+```
+
+## Queries
+
+### Query many raffles
+
+Get raffles
+
+```graphql
+{
+  raffles(first: 1000, skip: 0) {
+    id
+    entryPrice
+    minEntries
+    prizes {
+      asset
+      type
+      value
+      name
+      symbol
+      decimals
+      uri
+    }
+    creator {
+      id
+    }
+    participantsCount
+    participants {
+      user {
+        id
+      }
+      blockTimestamp
+    }
+    deadline
+    state
+    result {
+      winner {
+        id
+      }
+      drawSuccess {
+        blockTimestamp
+        transactionHash
+      }
+    }
+    creation {
+      blockTimestamp
+      transactionHash
+    }
+  }
+}
+```
+
+### Query one raffle
+
+Get one raffle
+
+```graphql
+{
+  raffle(id: "0xb374575756c701209a219158934ec2d763d46509") {
+    networkId
+    id
+    entryPrice
+    minEntries
+    prizes {
+      asset
+      type
+      value
+      name
+      symbol
+      decimals
+      uri
+    }
+    creator {
+      id
+    }
+    participantsCount
+    participants {
+      user {
+        id
+      }
+      blockTimestamp
+    }
+    deadline
+    state
+    result {
+      winner {
+        id
+      }
+      drawSuccess {
+        blockTimestamp
+        transactionHash
+      }
+    }
+    creation {
+      blockTimestamp
+      transactionHash
+    }
+  }
+}
+```
+
+### Query a raffle activity
+
+Get all the activity from a raffle
+
+```graphql
+{
+  entries(where: { raffle: "0xb374575756c701209a219158934ec2d763d46509" }) {
+    user {
+      id
+    }
+    quantity
+    total
+    boughtEvent {
+      blockTimestamp
+      transactionHash
+    }
+  }
+  deadlineFailedCriterias(
+    where: { raffle: "0xb374575756c701209a219158934ec2d763d46509" }
+  ) {
+    entries
+    transactionHash
+    blockTimestamp
+  }
+  deadlineSuccessCriterias(
+    where: { raffle: "0xb374575756c701209a219158934ec2d763d46509" }
+  ) {
+    entries
+    transactionHash
+    blockTimestamp
+  }
+}
+```
+
+### Query a raffle refunds
+
+Get the user refunds from a raffle
+
+```graphql
+{
+  raffle(id: $address) {
+    prizesRefunded {
+      blockTimestamp
+      transactionHash
+    }
+    participants(where: { user: $userAddress }) {
+      id
+    }
+    entriesRefunded(where: { user: $userAddress }) {
+      entriesRefunded
+      blockTimestamp
+      transactionHash
+    }
+  }
+}
+```

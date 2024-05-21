@@ -1,0 +1,73 @@
+# IERC20Minimal
+[Git Source](https://github.com/Raffleth/protocol/blob/d0e7a98ac74e241068705b47dbc09c29744e1867/src/interfaces/IERC20Minimal.sol)
+
+Interface for the ERC20 token standard with minimal functionality
+
+
+## Functions
+### balanceOf
+
+Returns the balance of a token for a specific account
+
+
+```solidity
+function balanceOf(address account) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address`|The address of the account to query|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|The balance of tokens held by the account|
+
+
+### transfer
+
+Transfers a specified amount of tokens from the caller's account to a recipient's account
+
+
+```solidity
+function transfer(address recipient, uint256 amount) external returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`recipient`|`address`|The address of the recipient|
+|`amount`|`uint256`|The amount of tokens to transfer|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|True if the transfer was successful, False otherwise|
+
+
+### transferFrom
+
+Transfers a specified amount of tokens from a sender's account to a recipient's account
+
+
+```solidity
+function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`sender`|`address`|The address of the sender|
+|`recipient`|`address`|The address of the recipient|
+|`amount`|`uint256`|The amount of tokens to transfer|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|True if the transfer was successful, False otherwise|
+
+

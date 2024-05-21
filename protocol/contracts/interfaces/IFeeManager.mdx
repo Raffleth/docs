@@ -1,0 +1,82 @@
+# IFeeManager
+[Git Source](https://github.com/Raffleth/protocol/blob/d0e7a98ac74e241068705b47dbc09c29744e1867/src/interfaces/IFeeManager.sol)
+
+*Interface that describes the struct and accessor function for the data related to the collection of fees.*
+
+
+## Functions
+### creationFeeData
+
+Exposes the creation fee for new `Raffl`s deployments.
+
+*Enabled custom fees overrides the global creation fee.*
+
+
+```solidity
+function creationFeeData(address raffle) external view returns (address feeCollector, uint64 creationFeeValue);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`raffle`|`address`|Address of the `Raffl`.|
+
+
+### poolFeeData
+
+Exposes the fee that will be collected from the pool on success draws for `Raffl`s.
+
+*Enabled custom fees overrides the global transfer fee.*
+
+
+```solidity
+function poolFeeData(address raffle) external view returns (address feeCollector, uint64 poolFeePercentage);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`raffle`|`address`|Address of the `Raffl`.|
+
+
+## Structs
+### FeeData
+*The `FeeData` struct is used to store fee configurations such as the collection address and fee amounts for
+various transaction types in the contract.*
+
+
+```solidity
+struct FeeData {
+    address feeCollector;
+    uint64 creationFee;
+    uint64 poolFeePercentage;
+}
+```
+
+### UpcomingFeeData
+*Stores global fee data upcoming change and timestamp for that change.*
+
+
+```solidity
+struct UpcomingFeeData {
+    uint64 nextValue;
+    uint64 valueChangeAt;
+}
+```
+
+### CustomFeeData
+*Stores custom fee data, including its current state, upcoming changes, and the timestamps for those
+changes.*
+
+
+```solidity
+struct CustomFeeData {
+    bool isEnabled;
+    uint64 value;
+    uint64 nextValue;
+    uint64 valueChangeAt;
+    bool nextEnableState;
+    uint64 statusChangeAt;
+}
+```
+

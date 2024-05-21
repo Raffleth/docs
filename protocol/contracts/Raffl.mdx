@@ -1,0 +1,409 @@
+# Raffl
+[Git Source](https://github.com/Raffleth/protocol/blob/d0e7a98ac74e241068705b47dbc09c29744e1867/src/Raffl.sol)
+
+**Inherits:**
+ReentrancyGuardUpgradeable, [EntriesManager](/src/abstracts/EntriesManager.sol/abstract.EntriesManager.md), [IRaffl](/src/interfaces/IRaffl.sol/interface.IRaffl.md)
+
+**Author:**
+JA (@ubinatus)
+
+Raffl is a decentralized platform built on the Ethereum blockchain, allowing users to create and participate
+in raffles/lotteries with complete transparency, security, and fairness.
+
+
+## State Variables
+### factory
+STATE
+
+*Address of the RafflFactory*
+
+
+```solidity
+address public factory;
+```
+
+
+### creator
+*User address that created the Raffl*
+
+
+```solidity
+address public creator;
+```
+
+
+### prizes
+*Prizes contained in the Raffl*
+
+
+```solidity
+Prize[] public prizes;
+```
+
+
+### deadline
+*Block timestamp for when the draw should be made and until entries are accepted*
+
+
+```solidity
+uint256 public deadline;
+```
+
+
+### minEntries
+*Minimum number of entries required to execute the draw*
+
+
+```solidity
+uint256 public minEntries;
+```
+
+
+### entryPrice
+*Price of the entry to participate in the Raffl*
+
+
+```solidity
+uint256 public entryPrice;
+```
+
+
+### entryToken
+*Address of the ERC20 entry token (if applicable)*
+
+
+```solidity
+address public entryToken;
+```
+
+
+### tokenGates
+*Array of token gates required for all participants to purchase entries.*
+
+
+```solidity
+TokenGate[] public tokenGates;
+```
+
+
+### userRefund
+*Maps a user address to whether refund was made.*
+
+
+```solidity
+mapping(address => bool) public userRefund;
+```
+
+
+### extraRecipient
+*Extra recipient to share the pooled funds.*
+
+
+```solidity
+ExtraRecipient public extraRecipient;
+```
+
+
+### pool
+*Total pooled funds from entries acquisition*
+
+
+```solidity
+uint256 public pool;
+```
+
+
+### settled
+*Whether the raffle is settled or not*
+
+
+```solidity
+bool public settled;
+```
+
+
+### prizesRefunded
+*Whether the prizes were refunded when criteria did not meet.*
+
+
+```solidity
+bool public prizesRefunded;
+```
+
+
+### gameStatus
+*Status of the Raffl game*
+
+
+```solidity
+GameStatus public gameStatus;
+```
+
+
+### MAX_ENTRIES_PER_USER
+*Maximum number of entries a single address can hold.*
+
+
+```solidity
+uint64 internal constant MAX_ENTRIES_PER_USER = 2 ** 64 - 1;
+```
+
+
+### MAX_TOTAL_ENTRIES
+*Maximum total of entries.*
+
+
+```solidity
+uint256 internal constant MAX_TOTAL_ENTRIES = 2 ** 256 - 1;
+```
+
+
+### ONE
+*Percentages and fees are calculated using 18 decimals where 1 ether is 100%.*
+
+
+```solidity
+uint256 internal constant ONE = 1 ether;
+```
+
+
+### manager
+The manager that deployed this contract which controls the values for `fee` and `feeCollector`.
+
+
+```solidity
+IFeeManager public manager;
+```
+
+
+## Functions
+### onlyFactory
+
+MODIFIERS
+
+
+```solidity
+modifier onlyFactory();
+```
+
+### constructor
+
+
+```solidity
+constructor();
+```
+
+### initialize
+
+INITIALIZER
+
+
+```solidity
+function initialize(
+    address _entryToken,
+    uint256 _entryPrice,
+    uint256 _minEntries,
+    uint256 _deadline,
+    address _creator,
+    Prize[] calldata _prizes,
+    TokenGate[] calldata _tokenGatesArray,
+    ExtraRecipient calldata _extraRecipient
+)
+    external
+    override
+    initializer;
+```
+
+### criteriaMet
+
+METHODS
+
+
+```solidity
+function criteriaMet() external view override returns (bool);
+```
+
+### deadlineExpired
+
+Checks if the deadline has passed
+
+
+```solidity
+function deadlineExpired() external view override returns (bool);
+```
+
+### upkeepPerformed
+
+Checks if raffle already perfomed the upkeep
+
+
+```solidity
+function upkeepPerformed() external view override returns (bool);
+```
+
+### poolFeeData
+
+Returns the current pool fee associated to this `Raffl`.
+
+
+```solidity
+function poolFeeData() external view returns (address, uint64);
+```
+
+### getPrizes
+
+Returns the current prizes associated to this `Raffl`.
+
+
+```solidity
+function getPrizes() external view returns (Prize[] memory);
+```
+
+### buyEntries
+
+Purchase entries for the raffle.
+
+*Handles the acquisition of entries for three scenarios:
+i) Entry is paid with network tokens,
+ii) Entry is paid with ERC-20 tokens,
+iii) Entry is free (allows up to 1 entry per user)*
+
+
+```solidity
+function buyEntries(uint256 quantity) external payable override nonReentrant;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`quantity`|`uint256`|The quantity of entries to purchase. Requirements: - If entry is paid with network tokens, the required amount of network tokens. - If entry is paid with ERC-20, the contract must be approved to spend ERC-20 tokens. - If entry is free, no payment is required. Emits `EntriesBought` event|
+
+
+### refundEntries
+
+Refund entries for a specific user.
+
+*Invokable when the draw was not made because the min entries were not enought*
+
+
+```solidity
+function refundEntries(address user) external override nonReentrant;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`|The address of the user whose entries will be refunded.|
+
+
+### refundPrizes
+
+Refund prizes to the creator.
+
+*Invokable when the draw was not made because the min entries were not enought*
+
+
+```solidity
+function refundPrizes() external payable override nonReentrant;
+```
+
+### _transferPrizes
+
+HELPERS
+
+*Transfers the prizes to the specified user.*
+
+
+```solidity
+function _transferPrizes(address user) private;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`|The address of the user who will receive the prizes.|
+
+
+### _transferPool
+
+*Transfers the pool balance to the creator of the raffle, after deducting any fees.*
+
+
+```solidity
+function _transferPool() private;
+```
+
+### _purchaseEntry
+
+*Internal function to handle the purchase of entries with entry price greater than 0.*
+
+
+```solidity
+function _purchaseEntry(uint256 quantity) private;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`quantity`|`uint256`|The quantity of entries to purchase.|
+
+
+### _purchaseFreeEntry
+
+*Internal function to handle the purchase of free entries with entry price equal to 0.*
+
+
+```solidity
+function _purchaseFreeEntry() private;
+```
+
+### _ensureTokenGating
+
+Ensures that the user has all the requirements from the `tokenGates` array
+
+
+```solidity
+function _ensureTokenGating(address user) private view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`user`|`address`|Address of the user|
+
+
+### setSuccessCriteria
+
+FACTORY METHODS
+
+*Access control: `factory` is the only allowed to called this method*
+
+
+```solidity
+function setSuccessCriteria(uint256 requestId) external override onlyFactory;
+```
+
+### setFailedCriteria
+
+Sets the criteria as settled, sets the `GameStatus` as `FailedDraw` and emits event
+`DeadlineFailedCriteria`
+
+*Access control: `factory` is the only allowed to called this method*
+
+
+```solidity
+function setFailedCriteria() external override onlyFactory;
+```
+
+### disperseRewards
+
+Transfers the `prizes` to the provably fair and verifiable entrant, sets the `GameStatus` as
+`SuccessDraw` and emits event `DrawSuccess`
+
+*Access control: `factory` is the only allowed to called this method through the Chainlink VRF Coordinator*
+
+
+```solidity
+function disperseRewards(uint256 requestId, uint256 randomNumber) external override onlyFactory nonReentrant;
+```
+

@@ -1,0 +1,14 @@
+---
+title: What Happens if the Draw is Not Made?
+description: Learn how Raffl handles when your Raffl did not reached the minimum entries to draw.
+---
+
+On Raffl, the draw for a raffle is automated and is expected to occur on the specified draw date. However, if a draw is not made, it's typically because the raffle did not meet the minimum entries requirement before the draw date.
+
+In such a scenario, the raffle is cancelled, and the smart contract enters a refund stage. The smart contract will emit a "**DeadlineFailedCriteria**" event, signaling that the raffle did not meet its entry criteria. Here's what happens next:
+
+1. **Refunds:** When a raffle is cancelled, participants can request refunds for their entries. Likewise, the raffle creator can request a refund for the prizes they put up for the raffle.
+
+2. **How to Request Refunds:** Participants and raffle creators can visit the raffle page and click on the "Request Refund" button to start the refund process.
+
+Remember, on Raffl, your funds are secured by the smart contract. If a raffle doesn't proceed as planned, you can always retrieve your tokens.

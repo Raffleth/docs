@@ -1,0 +1,71 @@
+# TokenLib
+[Git Source](https://github.com/Raffleth/protocol/blob/d0e7a98ac74e241068705b47dbc09c29744e1867/src/libraries/TokenLib.sol)
+
+*Library the contains helper methods for retrieving balances and transfering ERC-20 and ERC-721*
+
+
+## Functions
+### balanceOf
+
+Retrieves the balance of a specified token for a given user
+
+*This function calls the `balanceOf` function on the token contract using the provided selector and decodes
+the returned data to retrieve the balance*
+
+
+```solidity
+function balanceOf(address token, address user) internal view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`token`|`address`|The address of the token contract|
+|`user`|`address`|The address of the user to query|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|The balance of tokens held by the user|
+
+
+### safeTransfer
+
+Safely transfers tokens from the calling contract to a recipient
+
+*Calls the `transfer` function on the specified token contract and checks for successful transfer*
+
+
+```solidity
+function safeTransfer(address token, address to, uint256 value) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`token`|`address`|The contract address of the token which will be transferred|
+|`to`|`address`|The recipient of the transfer|
+|`value`|`uint256`|The amount of tokens to be transferred|
+
+
+### safeTransferFrom
+
+Safely transfers tokens from one address to another using the `transferFrom` function
+
+*Calls the `transferFrom` function on the specified token contract and checks for successful transfer*
+
+
+```solidity
+function safeTransferFrom(address token, address from, address to, uint256 value) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`token`|`address`|The contract address of the token which will be transferred|
+|`from`|`address`|The source address from which tokens will be transferred|
+|`to`|`address`|The recipient address to which tokens will be transferred|
+|`value`|`uint256`|The amount of tokens to be transferred|
+
+

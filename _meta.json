@@ -1,0 +1,35 @@
+{
+  "index": "Introduction",
+  "features": "Features",
+  "why-use-raffl": "Why use Raffl?",
+
+  "-- Tutorials --": {
+    "type": "separator",
+    "title": "Tutorials"
+  },
+  "how-to-create": "Create raffles",
+  "how-to-participate": "Join a raffle",
+  "how-to-restrict-to-holders": "Create token gating raffles",
+
+  "-- Miscellaneous --": {
+    "type": "separator",
+    "title": "Miscellaneous"
+  },
+  "faq": "Frequently Asked Questions",
+
+  "-- Technical Docs --": {
+    "type": "separator",
+    "title": "Technical Docs"
+  },
+  "contract-addresses": "Contracts Addresses",
+  "subgraph": "Subgraph",
+  "protocol": "Protocol",
+  "integrate-raffl-into-your-protocol": "Integrate Raffl into your protocol",
+
+  "-- Contact Us --": {
+    "type": "separator",
+    "title": "Contact"
+  },
+  "business-partnerships": "Business Partnerships",
+  "contact-us": "Contact Us"
+}
